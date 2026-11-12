@@ -2,22 +2,23 @@
 [bits 16]
 
 %define drawingSums 0x7E00
-%define directionSums 0x7E20
 %define direction 0x7FFA
 %define fruit 0x7FFC
 %define snakeParts_len 0x7FFE
 %define snakeParts 0x8000
+%define directionSums 0x9D40
 
 start:
+    xor ax, ax
     mov di, directionSums
     mov cx, 0xFF
     rep stosw
 
-    sub di, 0x16E
+    mov di, directionSums + 0x90
     mov ax, 64256
     stosw
     add di, 4
-    mov ax, 65532
+    add ax, 1276
     stosw
     inc di
     inc di
