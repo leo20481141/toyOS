@@ -1,2 +1,11 @@
+*.bin
+*.img
+
 */*.bin
 */*.img
+
+**/*.bin
+**/*.img
+
+snake/*.bin
+snake/*.img
