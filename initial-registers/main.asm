@@ -8,6 +8,7 @@ start:
     push fs
     push es
     push ds
+    push bp
     push di
     push si
     push dx
@@ -16,7 +17,7 @@ start:
     push ax
 
     mov ah, 0x0e
-    mov cx, 12
+    mov cx, 13
     mov si, registers
     loop:
     lodsb
@@ -66,7 +67,7 @@ start:
     int 0x10
     loop loop
 
-registers: db "AXBXCXDXSIDIDSESFSGSSSSP", 0
+registers: db "AXBXCXDXSIDIBPDSESFSGSSSSP", 0
 
 %ifndef NOPAD
 times 510 - ($ - $$) db 0
