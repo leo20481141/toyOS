@@ -11,20 +11,19 @@
 start:
     xor ax, ax
     mov di, directionSums
-    mov cx, 0xFF
+    mov cl, 0xFF
     rep stosw
 
     mov di, directionSums + 0x90
     mov ax, 64256
     stosw
-    add di, 4
+    stosw
     add ax, 1276
     stosw
-    inc di
-    inc di
+    stosw
     mov ax, 4
     stosw
-    add di, 4
+    add di, 6
     mov ax, 1280
     stosw
 
@@ -33,9 +32,9 @@ start:
 
     mov al, 0x34
     out 0x43, al
-    mov ax, 341
+    mov al, 0x55
     out 0x40, al
-    mov al, ah
+    mov al, 0x01
     out 0x40, al
 
     mov di, drawingSums
@@ -50,8 +49,6 @@ start:
     loop initDrawingSums
 
     startGame:
-    mov sp, 0x7C00
-
     mov ax, 0xA000
     mov es, ax
     xor di, di
@@ -77,7 +74,7 @@ start:
 
     call numberToPosition
     push ax
-    add al, 2
+    inc ax
     call numberToPosition
 
     mov [snakeParts], ax
@@ -108,17 +105,17 @@ start:
     waitLoop:
     int 0x1A
     sub dx, bx
-    sub dx, 800
+    sub dh, 0x03
     jc waitLoop
 
-    inc ah
+    mov ah, 1
     int 0x16
     jz after
     xor ax, ax
     int 0x16
     mov si, directionSums
-    shr ax, 8
-    shl al, 1
+    shr ax, 9
+    shl ax, 2
     add si, ax
     lodsw
     test ax, ax
@@ -126,58 +123,56 @@ start:
     mov [direction], ax
 
     after:
-    mov ax, [snakeParts]
-    add ax, [direction]
-    mov di, ax
-    xor di, [fruit]
+    mov di, [snakeParts]
+    add di, [direction]
+    mov ax, di
+    xor ax, [fruit]
     jz eatFruit
-    mov di, ax
-    mov dl, [es:di]
-    xor dl, 24
+    mov al, [es:di]
+    xor al, 24
     jz startGame
-    mov dx, ax
     mov cx, [snakeParts_len]
     mov si, snakeParts
     colissionWithItself:
-    push dx
     lodsw
-    xor dx, ax
-    pop dx
+    xor ax, di
     jz startGame
     loop colissionWithItself
 
-    mov di, ax
+    push di
+    xor di, ax
     xor al, al
     call drawSquare
-
-    dec si
-    dec si
-    mov di, si
-    dec si
-    dec si
-    mov cx, [snakeParts_len]
-    dec cx
     jmp moveMemory
 
     eatFruit:
-    push ax
-    xor ax, ax
     int 0x1A
     mov ax, dx
     call numberToPosition
     mov [fruit], ax
+
+    push di
+    inc word [snakeParts_len]
+
+    moveMemory:
     pop ax
 
     mov cx, [snakeParts_len]
+    dec cx
     mov di, snakeParts
     add di, cx
     add di, cx
     mov si, di
     dec si
     dec si
-    mov dx, ax
-    inc word [snakeParts_len]
-    jmp moveMemory
+
+    xor dx, dx
+    mov es, dx
+    std
+    rep movsw
+    stosw
+    cld
+    jmp draw
 
     halt:
     cli
@@ -185,8 +180,7 @@ start:
     jmp $
 
 drawSquare:
-    push si
-    push cx
+    pusha
     push ax
     mov si, drawingSums
     mov cx, 16
@@ -199,14 +193,13 @@ drawSquare:
     loop drawSquare_pixel
 
     pop ax
-    pop cx
-    pop si
+    popa
     ret
 
 numberToPosition:
-    test al, al
+    test ax, ax
     jnz numbersToPosition_skipIncremment
-    inc al
+    inc ax
     numbersToPosition_skipIncremment:
     mov bx, 3496
     xor dx, dx
@@ -227,16 +220,6 @@ numberToPosition:
     shl dx, 2
     add ax, dx
     ret
-
-moveMemory:
-    xor ax, ax
-    mov es, ax
-    std
-    rep movsw
-    mov ax, dx
-    stosw
-    cld
-    jmp draw
 
 test:
     mov ax, 0xA000
