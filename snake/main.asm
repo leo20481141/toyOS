@@ -18,7 +18,7 @@ start:
     mov ax, 64256
     stosw
     stosw
-    add ax, 1276
+    mov ax, 65532
     stosw
     stosw
     mov ax, 4
@@ -108,6 +108,9 @@ start:
     sub dh, 0x03
     jc waitLoop
 
+    mov di, [snakeParts]
+    mov cx, [snakeParts_len]
+    push cx
     mov ah, 1
     int 0x16
     jz after
@@ -120,10 +123,18 @@ start:
     lodsw
     test ax, ax
     jz after
+    dec cx
+    jz setDirection
+    push ax
+    add ax, di
+    xor ax, [snakeParts + 2]
+    pop ax
+    jz after
+    setDirection:
     mov [direction], ax
 
     after:
-    mov di, [snakeParts]
+    pop cx
     add di, [direction]
     mov ax, di
     xor ax, [fruit]
@@ -131,7 +142,6 @@ start:
     mov al, [es:di]
     xor al, 24
     jz startGame
-    mov cx, [snakeParts_len]
     mov si, snakeParts
     colissionWithItself:
     lodsw
