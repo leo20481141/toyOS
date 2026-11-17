@@ -54,6 +54,8 @@ start:
     loop loop
 
     halt:
+    cli
+    hlt
     jmp $
 
 %ifndef NOPAD
